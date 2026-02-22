@@ -2,39 +2,34 @@
 // Overrides Page Visibility API and blocks visibility‑based playback restrictions
 
 (function () {
-  // Block visibilitychange events before site scripts receive them
-  document.addEventListener(
-    'visibilitychange',
-    function (e) {
-      console.log('[Background Unlock] visibilitychange blocked');
-      e.stopImmediatePropagation();
-    },
-    true // capture phase
-  );
+  const override = {
+    get() { return "visible"; },
+    configurable: true
+  };
 
-  // Block blur events (some players use blur to pause playback)
-  window.addEventListener(
-    'blur',
-    function (e) {
-      console.log('[Background Unlock] blur blocked');
-      e.stopImmediatePropagation();
-    },
-    true
-  );
+  // Patch prototype first (this is what YT Music reads)
+  try {
+    Object.defineProperty(Document.prototype, "visibilityState", override);
+    Object.defineProperty(Document.prototype, "hidden", {
+      get() { return false; },
+      configurable: true
+    });
+  } catch (e) {
+    console.warn("[Unlock] prototype override failed:", e);
+  }
 
-/*
-  // Force the page to always appear visible
-  Object.defineProperty(document, 'visibilityState', {
-    get: function () {
-      return 'visible';
-    }
-  });
+  // Patch instance if still configurable
+  try {
+    Object.defineProperty(document, "visibilityState", override);
+    Object.defineProperty(document, "hidden", {
+      get() { return false; },
+      configurable: true
+    });
+  } catch (e) {
+    console.warn("[Unlock] instance override failed:", e);
+  }
 
-  Object.defineProperty(document, 'hidden', {
-    get: function () {
-      return false;
-    }
-  });
-*/
-  console.log('[Background Unlock] Page Visibility API patched');
+  // Block events
+  document.addEventListener("visibilitychange", e => e.stopImmediatePropagation(), true);
+  window.addEventListener("blur", e => e.stopImmediatePropagation(), true);
 })();
