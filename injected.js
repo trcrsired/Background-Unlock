@@ -22,6 +22,7 @@
     true
   );
 
+/*
   // Force the page to always appear visible
   Object.defineProperty(document, 'visibilityState', {
     get: function () {
@@ -34,6 +35,6 @@
       return false;
     }
   });
-
+*/
   console.log('[Background Unlock] Page Visibility API patched');
 })();
