@@ -7,7 +7,7 @@
     configurable: true
   };
 
-  // Patch prototype first (this is what YT Music reads)
+  // Patch prototype first
   try {
     Object.defineProperty(Document.prototype, "visibilityState", override);
     Object.defineProperty(Document.prototype, "hidden", {
